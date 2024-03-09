@@ -1,4 +1,4 @@
-import { Movie } from "@/features/movies/MovieSlice";
+import { Movie } from "@/src/features/movies/MovieSlice";
 import { Card } from "./ui/card";
 import { Link } from "react-router-dom";
 
@@ -14,9 +14,15 @@ const MovieCard = ({ data }: MovieCardProps) => {
           alt={data.Title}
           className="w-full h-full object-cover rounded-md"
         />
-        <div className="absolute bottom-0 flex items-center justify-center backdrop-blur-md bg-[#09090B4D] text-white w-full p-4 rounded-b-md h-20 ">
-          <p className="text-white font-serif overflow-hidden text-ellipsis text-center">
+         <div className="absolute bottom-0 flex flex-col items-center justify-center backdrop-blur-md bg-[#09090B4D] text-white w-full p-4 rounded-b-md h-28 ">
+          <p className="text-white font-serif overflow-hidden text-ellipsis whitespace-nowrap text-center max-w-full">
             {data.Title}
+          </p>
+          <p className="text-white font-serif text-center">
+            Released in {data.Year}
+          </p>
+          <p className="text-white font-serif text-center">
+            IMDb ID: {data.imdbID}
           </p>
         </div>
       </Card>

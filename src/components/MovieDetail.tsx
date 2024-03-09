@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   fetchDetails,
-  getAllData,
   removeSelectedDetails,
 } from "../features/movies/MovieSlice";
-import { AppDispatch } from "@/app/store";
+import { getAllData } from "../features/movies/MovieSlice";
+import { AppDispatch } from "@/src/app/store";
 
 const MovieDetail = () => {
   const { id } = useParams();
@@ -23,17 +23,19 @@ const MovieDetail = () => {
     };
   }, [id, dispatch]);
 
-  const parseGenres = (genres: string) => {
-    return genres.split(",").map((item) => item.trim());
-  };
-
-  if (!movie.Title) {
+  if (!movie || !movie.Title) {
     return (
-      <div className="text-white flex  justify-center items-center ">
+      <div className="text-white flex justify-center items-center">
         Loading...
       </div>
     );
   }
+
+  const parseGenres = (genreString: string | undefined) => {
+    return (genreString ? genreString : "")
+      .split(",")
+      .map((genre: string) => genre.trim());
+  };
 
   return (
     <div className="bg-gray-800 min-h-screen text-white p-4 sm:p-8">

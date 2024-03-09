@@ -1,5 +1,5 @@
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import MovieApi from "../../api/MovieApi";
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 
 export interface Movie {
   Title: string;
@@ -10,14 +10,14 @@ export interface Movie {
 }
 
 interface MovieState {
-  movies: Movie[];
-  tvSeries: Movie[];
-  totalResultsMovies: string;
-  ResponseMovies: string;
-  totalResultsTvSeries: string;
-  ResponseTvSeries: string;
-  selectedDetails: selectedDetailsType;
+  content: Movie[];
+  totalResults: string;
+  response: string;
+  searchText: string;
+  searchType: string;
+  selectedDetails: SelectedDetailsType;
 }
+
 interface ResponsePayload {
   Search: Movie[];
   totalResults: string;
@@ -25,68 +25,42 @@ interface ResponsePayload {
 }
 
 const initialState: MovieState = {
-  movies: [],
-  tvSeries: [],
-  totalResultsMovies: "",
-  ResponseMovies: "",
-  totalResultsTvSeries: "",
-  ResponseTvSeries: "",
-  selectedDetails: {
-    Title: "",
-    Year: "",
-    Rated: "",
-    Released: "",
-    Runtime: "",
-    Genre: "",
-    Director: "",
-    Writer: "",
-    Actors: "",
-    Plot: "",
-    Language: "",
-    Country: "",
-    Awards: "",
-    Poster: "",
-    Ratings: [],
-    Metascore: "",
-    imdbRating: "",
-    imdbVotes: "",
-    imdbID: "",
-    Type: "",
-    DVD: "",
-    BoxOffice: "",
-    Production: "",
-    Website: "",
-    Response: "",
-  },
+  content: [],
+  totalResults: "",
+  response: "",
+  searchText: "Pokemon",
+  searchType: "",
+  selectedDetails: {},
 };
 
-interface selectedDetailsType {
-  Title: string;
-  Year: string;
-  Rated: string;
-  Released: string;
-  Runtime: string;
-  Genre: string;
-  Director: string;
-  Writer: string;
-  Actors: string;
-  Plot: string;
-  Language: string;
-  Country: string;
-  Awards: string;
-  Poster: string;
-  Ratings: Rating[];
-  Metascore: string;
-  imdbRating: string;
-  imdbVotes: string;
-  imdbID: string;
-  Type: string;
-  DVD: string;
-  BoxOffice: string;
-  Production: string;
-  Website: string;
-  Response: string;
+interface SelectedDetailsType {
+  Title?: string;
+  Year?: string;
+  Rated?: string;
+  Released?: string;
+  Runtime?: string;
+  Genre?: string;
+  Director?: string;
+  Writer?: string;
+  Actors?: string;
+  Plot?: string;
+  Language?: string;
+  Country?: string;
+  Awards?: string;
+  Poster?: string;
+  Ratings?: Rating[];
+  Metascore?: string;
+  imdbRating?: string;
+  imdbVotes?: string;
+  imdbID?: string;
+  Type?: string;
+  DVD?: string;
+  BoxOffice?: string;
+  Production?: string;
+  Website?: string;
+  Response?: string;
 }
+
 interface Rating {
   Source: string;
   Value: string;
@@ -94,49 +68,43 @@ interface Rating {
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-export const fetchMovies = createAsyncThunk("movies/fetchMovies", async () => {
-  const MovieText = "Pokemon";
-  const response = await MovieApi.get<ResponsePayload>(
-    `?apiKey=${apiKey}&s=${MovieText}&type=movie`
-  );
-  if (response.data.Response === "True" && response.data.Search) {
-    return {
-      Search: response.data.Search,
-      totalResultsMovies: response.data.totalResults,
-      ResponseMovies: response.data.Response,
-    };
-  } else {
-    console.error("No movies found or API error");
-  }
-});
+function reject(error: string): any {
+  throw new Error("Function not implemented.");
+}
 
-export const fetchTvSeries = createAsyncThunk(
-  "movies/fetchTvSeries",
-  async () => {
-    const SeriesText = "Friends";
-    const response = await MovieApi.get<ResponsePayload>(
-      `?apiKey=${apiKey}&s=${SeriesText}&type=series`
-    );
-    if (response.data.Response === "True" && response.data.Search) {
+export const fetchContent = createAsyncThunk(
+  "movies/fetchContent",
+  async (
+    { searchText, searchType }: { searchText: string; searchType: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const typeParam =
+        searchType && searchType !== "All" ? `&type=${searchType}` : "";
+      const response = await MovieApi.get<ResponsePayload>(
+        `https://www.omdbapi.com/?apiKey=${apiKey}&s=${searchText}${typeParam}`
+      );
+
       return {
-        Search: response.data.Search,
-        totalResultsTvSeries: response.data.totalResults,
-        ResponseTvSeries: response.data.Response,
+        content: response.data.Search,
+        totalResults: response.data.totalResults,
+        response: response.data.Response,
       };
-    } else {
-      console.error("No movies found or API error");
+    } catch (error) {
+      return rejectWithValue("API error");
     }
   }
 );
+
 export const fetchDetails = createAsyncThunk(
   "movies/fetchDetails",
-  async (id: string) => {
-    const response = await MovieApi.get<ResponsePayload>(
-      `?apiKey=${apiKey}&i=${id}&Plot=full`
+  async (imdbID: string) => {
+    const response = await MovieApi.get<SelectedDetailsType>(
+      `https://www.omdbapi.com/?apiKey=${apiKey}&i=${imdbID}&plot=full`
     );
-    return {
-      selectedDetails: response.data,
-    };
+    return response.data.Response === "True"
+      ? response.data
+      : reject("Failed to fetch details");
   }
 );
 
@@ -144,40 +112,30 @@ const movieSlice = createSlice({
   name: "movies",
   initialState,
   reducers: {
+    setSearchParams: (
+      state,
+      action: PayloadAction<{ searchText: string; searchType: string }>
+    ) => {
+      state.searchText = action.payload.searchText;
+      state.searchType = action.payload.searchType;
+    },
     removeSelectedDetails: (state) => {
       state.selectedDetails = initialState.selectedDetails;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMovies.pending, (state) => {
-        console.log("Pending");
-      })
-      .addCase(fetchMovies.fulfilled, (state, action) => {
-        console.log("Fetch Successful");
-        state.movies = action.payload?.Search ?? [];
-        state.totalResultsMovies = action.payload?.totalResultsMovies ?? "";
-        state.ResponseMovies = action.payload?.ResponseMovies ?? "";
-      })
-      .addCase(fetchMovies.rejected, (state) => {
-        console.log("Rejected");
-      })
-      .addCase(fetchTvSeries.fulfilled, (state, action) => {
-        console.log("Fetch Successful");
-        state.tvSeries = action.payload?.Search ?? [];
-        state.totalResultsTvSeries = action.payload?.totalResultsTvSeries ?? "";
-        state.ResponseTvSeries = action.payload?.ResponseTvSeries ?? "";
+      .addCase(fetchContent.fulfilled, (state, action) => {
+        state.content = action.payload.content;
+        state.totalResults = action.payload.totalResults;
+        state.response = action.payload.response;
       })
       .addCase(fetchDetails.fulfilled, (state, action) => {
-        console.log("Fetch Successful");
-        state.selectedDetails = {
-          ...state.selectedDetails,
-          ...action.payload?.selectedDetails,
-        };
+        state.selectedDetails = action.payload;
       });
   },
 });
 
-export const { removeSelectedDetails } = movieSlice.actions;
+export const { setSearchParams, removeSelectedDetails } = movieSlice.actions;
 export const getAllData = (state: { movies: MovieState }) => state.movies;
 export default movieSlice.reducer;
