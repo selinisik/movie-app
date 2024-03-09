@@ -28,6 +28,7 @@ const Home = (props: HomeProps) => {
             addMovies({
               Search: response.data.Search,
               totalResults: parseInt(response.data.totalResults),
+              Response: response.data.Response,
             })
           );
         } else {
