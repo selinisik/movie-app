@@ -15,6 +15,7 @@ const MovieList = () => {
 
   return (
     <div className="mx-4 md:mx-10 text-white">
+      <SearchBar />
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {renderContent}
       </div>
