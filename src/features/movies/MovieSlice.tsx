@@ -16,6 +16,7 @@ interface MovieState {
   ResponseMovies: string;
   totalResultsTvSeries: string;
   ResponseTvSeries: string;
+  selectedDetails: selectedDetailsType;
 }
 interface ResponsePayload {
   Search: Movie[];
@@ -30,9 +31,69 @@ const initialState: MovieState = {
   ResponseMovies: "",
   totalResultsTvSeries: "",
   ResponseTvSeries: "",
+  selectedDetails: {
+    Title: "",
+    Year: "",
+    Rated: "",
+    Released: "",
+    Runtime: "",
+    Genre: "",
+    Director: "",
+    Writer: "",
+    Actors: "",
+    Plot: "",
+    Language: "",
+    Country: "",
+    Awards: "",
+    Poster: "",
+    Ratings: [],
+    Metascore: "",
+    imdbRating: "",
+    imdbVotes: "",
+    imdbID: "",
+    Type: "",
+    DVD: "",
+    BoxOffice: "",
+    Production: "",
+    Website: "",
+    Response: "",
+  },
 };
 
+interface selectedDetailsType {
+  Title: string;
+  Year: string;
+  Rated: string;
+  Released: string;
+  Runtime: string;
+  Genre: string;
+  Director: string;
+  Writer: string;
+  Actors: string;
+  Plot: string;
+  Language: string;
+  Country: string;
+  Awards: string;
+  Poster: string;
+  Ratings: Rating[];
+  Metascore: string;
+  imdbRating: string;
+  imdbVotes: string;
+  imdbID: string;
+  Type: string;
+  DVD: string;
+  BoxOffice: string;
+  Production: string;
+  Website: string;
+  Response: string;
+}
+interface Rating {
+  Source: string;
+  Value: string;
+}
+
 const apiKey = process.env.REACT_APP_API_KEY;
+
 export const fetchMovies = createAsyncThunk("movies/fetchMovies", async () => {
   const MovieText = "Pokemon";
   const response = await MovieApi.get<ResponsePayload>(
@@ -67,14 +128,24 @@ export const fetchTvSeries = createAsyncThunk(
     }
   }
 );
+export const fetchDetails = createAsyncThunk(
+  "movies/fetchDetails",
+  async (id: string) => {
+    const response = await MovieApi.get<ResponsePayload>(
+      `?apiKey=${apiKey}&i=${id}&Plot=full`
+    );
+    return {
+      selectedDetails: response.data,
+    };
+  }
+);
+
 const movieSlice = createSlice({
   name: "movies",
   initialState,
   reducers: {
-    addMovies: (state, action: PayloadAction<MoviesPayload>) => {
-      state.movies = action.payload.Search;
-      state.totalResults = action.payload.totalResults;
-      state.Response = action.payload.Response;
+    removeSelectedDetails: (state) => {
+      state.selectedDetails = initialState.selectedDetails;
     },
   },
   extraReducers: (builder) => {
@@ -97,9 +168,16 @@ const movieSlice = createSlice({
         state.totalResultsTvSeries = action.payload?.totalResultsTvSeries ?? "";
         state.ResponseTvSeries = action.payload?.ResponseTvSeries ?? "";
       })
+      .addCase(fetchDetails.fulfilled, (state, action) => {
+        console.log("Fetch Successful");
+        state.selectedDetails = {
+          ...state.selectedDetails,
+          ...action.payload?.selectedDetails,
+        };
+      });
   },
 });
 
-export const { addMovies } = movieSlice.actions;
+export const { removeSelectedDetails } = movieSlice.actions;
 export const getAllData = (state: { movies: MovieState }) => state.movies;
 export default movieSlice.reducer;
