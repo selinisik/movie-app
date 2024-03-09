@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
-    <div>
+    <div className="bg-zinc-950 w-full h-screen flex flex-col">
       <Router>
         <Header />
         <Routes>
