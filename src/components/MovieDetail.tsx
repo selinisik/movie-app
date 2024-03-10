@@ -81,11 +81,13 @@ const MovieDetail = () => {
 
           <div className="flex flex-col md:flex-row">
             <div className="md:flex-1 flex justify-start items-center">
-              <img
-                src={movie.Poster}
-                alt={movie.Title}
-                className="rounded-lg shadow-lg mb-4 md:mb-0 border-2 border-gray-700 w-3/4"
-              />
+              {movie.Poster !== "N/A" ? (
+                <img
+                  src={movie.Poster}
+                  alt={movie.Title}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              ) : <p>No poster available</p>}
             </div>
             <div className="md:flex-1 md:ml-8">
               <p className="mb-4">
