@@ -56,7 +56,7 @@ const handleSearch = () => {
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button onClick={handleSearch}>Submit</Button>
+      <Button onClick={handleSearch} className="bg-sky-950">Submit</Button>
     </div>
   );
 };

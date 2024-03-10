@@ -16,6 +16,8 @@ interface MovieState {
   searchText: string;
   searchType: string;
   selectedDetails: SelectedDetailsType;
+  currentPage: number;
+  
 }
 
 interface ResponsePayload {
@@ -31,6 +33,7 @@ const initialState: MovieState = {
   searchText: "Pokemon",
   searchType: "",
   selectedDetails: {},
+  currentPage: 1,
 };
 
 interface SelectedDetailsType {
@@ -75,20 +78,20 @@ function reject(error: string): any {
 export const fetchContent = createAsyncThunk(
   "movies/fetchContent",
   async (
-    { searchText, searchType }: { searchText: string; searchType: string },
+    { searchText, searchType , page=1}: { searchText: string; searchType: string; page?: number},
     { rejectWithValue }
   ) => {
     try {
       const typeParam =
         searchType && searchType !== "All" ? `&type=${searchType}` : "";
       const response = await MovieApi.get<ResponsePayload>(
-        `https://www.omdbapi.com/?apiKey=${apiKey}&s=${searchText}${typeParam}`
+        `https://www.omdbapi.com/?apiKey=${apiKey}&s=${searchText}${typeParam}&page=${page}`
       );
-
       return {
         content: response.data.Search,
         totalResults: response.data.totalResults,
         response: response.data.Response,
+        currentPage: page,
       };
     } catch (error) {
       return rejectWithValue("API error");
@@ -118,6 +121,7 @@ const movieSlice = createSlice({
     ) => {
       state.searchText = action.payload.searchText;
       state.searchType = action.payload.searchType;
+      state.currentPage = 1;
     },
     removeSelectedDetails: (state) => {
       state.selectedDetails = initialState.selectedDetails;
@@ -129,6 +133,7 @@ const movieSlice = createSlice({
         state.content = action.payload.content;
         state.totalResults = action.payload.totalResults;
         state.response = action.payload.response;
+        state.currentPage = action.payload.currentPage;
       })
       .addCase(fetchDetails.fulfilled, (state, action) => {
         state.selectedDetails = action.payload;
