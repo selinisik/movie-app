@@ -1,8 +1,4 @@
-import * as React from "react";
-
-export interface FooterProps {}
-
-const Footer = (props: FooterProps) => {
+const Footer = () => {
   return (
     <div className="flex flex-col p-4 text-white gap-3 items-center bg-gradient-to-t from-[#082F4940] to-transparent">
 
