@@ -48,7 +48,7 @@ const SearchBar = () => {
   };
 
   const generateYearOptions = () => {
-    let years = [];
+    let years = [<SelectItem key="none" value="none">Year</SelectItem>];
     for (let i = 2024; i >= 1860; i--) {
       years.push(
         <SelectItem key={i} value={String(i)}>
@@ -60,10 +60,13 @@ const SearchBar = () => {
   };
 
   const handleYearChange = (newYear: string) => {
+    if (newYear === "none") {
+      dispatch(updateSearchYear(undefined));
+      return;
+    }
     const currentYear = newYear ? parseInt(newYear, 10) : undefined;
-    console.log(currentYear);
     dispatch(updateSearchYear(currentYear));
-};
+  };
 
   return (
     <div className="flex gap-4 pb-4">
