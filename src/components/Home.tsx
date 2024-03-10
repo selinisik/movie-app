@@ -22,7 +22,6 @@ const Home = () => {
 
   return (
     <div>
-      Home Page
       <MovieList />
     </div>
   );

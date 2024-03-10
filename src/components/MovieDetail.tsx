@@ -1,4 +1,4 @@
-import  { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
@@ -37,12 +37,16 @@ const MovieDetail = () => {
       .map((genre: string) => genre.trim());
   };
 
+  const checkNA = (text: string | undefined) => {
+    return text === "N/A" ? "Not Available" : text;
+  };
+
   return (
-    <div className="bg-gray-800 min-h-screen text-white p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-sky-900 to-zinc-950 text-white p-4 sm:p-8">
       <div className="container mx-auto">
-        <div className="bg-gray-900 p-4 sm:p-8 rounded-lg shadow-lg">
+        <div className="bg-gray-900 p-4 sm:p-12 rounded-lg shadow-lg border">
           <h1 className="text-3xl sm:text-4xl font-bold mb-6">
-            {movie.Title} ({movie.Year})
+            {movie.Title} ({checkNA(movie.Year)})
           </h1>
 
           <div className="flex flex-row gap-4 mb-6">
@@ -57,18 +61,18 @@ const MovieDetail = () => {
 
           <div className="flex flex-wrap mb-6 gap-5">
             <span>
-              <strong>Rated:</strong> {movie.Rated}
+              <strong>Rated:</strong> {checkNA(movie.Rated)}
             </span>
             <span>
-              <strong>Runtime:</strong> {movie.Runtime}
+              <strong>Runtime:</strong> {checkNA(movie.Runtime)}
             </span>
 
             <span>
-              <strong>Release Date:</strong> {movie.Released}
+              <strong>Release Date:</strong> {checkNA(movie.Released)}
             </span>
           </div>
           <div className="flex items-center mb-4 gap-4">
-            <span>IMDB: {movie.imdbRating}</span>
+            <span>IMDB: {checkNA(movie.imdbRating)}</span>
             {movie.Ratings &&
               movie.Ratings.map((rating, index) => (
                 <div key={index} className="flex items-center">
@@ -79,37 +83,39 @@ const MovieDetail = () => {
               ))}
           </div>
 
-          <div className="flex flex-col md:flex-row">
-            <div className="md:flex-1 flex justify-start items-center">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="md:flex-1 flex justify-center md:justify-start items-center">
               {movie.Poster !== "N/A" ? (
                 <img
                   src={movie.Poster}
                   alt={movie.Title}
-                  className="w-full h-full object-cover rounded-md"
+                  className="w-4/5 h-full object-cover rounded-md"
                 />
-              ) : <p>No poster available</p>}
+              ) : (
+                <p>No poster available</p>
+              )}
             </div>
             <div className="md:flex-1 md:ml-8">
               <p className="mb-4">
-                <strong>Plot:</strong> {movie.Plot}
+                <strong>Plot:</strong> {checkNA(movie.Plot)}
               </p>
               <p className="mb-4">
-                <strong>Director:</strong> {movie.Director}
+                <strong>Director:</strong> {checkNA(movie.Director)}
               </p>
               <p className="mb-4">
-                <strong>Writers:</strong> {movie.Writer}
+                <strong>Writers:</strong> {checkNA(movie.Writer)}
               </p>
               <p className="mb-4">
-                <strong>Actors:</strong> {movie.Actors}
+                <strong>Actors:</strong> {checkNA(movie.Actors)}
               </p>
               <p className="mb-4">
-                <strong>Language:</strong> {movie.Language}
+                <strong>Language:</strong> {checkNA(movie.Language)}
               </p>
               <p className="mb-4">
-                <strong>Country:</strong> {movie.Country}
+                <strong>Country:</strong> {checkNA(movie.Country)}
               </p>
               <p className="mb-4">
-                <strong>Awards:</strong> {movie.Awards}
+                <strong>Awards:</strong> {checkNA(movie.Awards)}
               </p>
             </div>
           </div>
