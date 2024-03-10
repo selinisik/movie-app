@@ -14,20 +14,20 @@ import {
 
 const MovieList = () => {
   const dispatch = useDispatch();
-  const { content, currentPage, totalResults ,searchText, searchType } =
+  const { content, currentPage, totalResults ,searchText, searchType,year } =
     useSelector(getAllData);
 
   useEffect(() => {
     dispatch(
-      fetchContent({ searchText, searchType, page: currentPage }) as any
+      fetchContent({ searchText, searchType, page: currentPage , year }) as any
     );
   }, [dispatch, searchText, searchType, currentPage]);
 
   const handlePageChange = (newPage:number) => {
-    dispatch(fetchContent({ searchText, searchType, page: newPage }) as any);
+    dispatch(fetchContent({ searchText, searchType, page: newPage , year}) as any);
   };
 
-  const renderContent = content.length ? (
+  const renderContent = content && content.length ? (
     content.map((item, index) => <MovieCard key={index} data={item} />)
   ) : (
     <p>No content found</p>

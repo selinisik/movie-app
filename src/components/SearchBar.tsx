@@ -1,22 +1,23 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setSearchParams, fetchContent } from "../features/movies/MovieSlice"; 
-import { Input } from "../components/ui/input"; 
-import { Button } from "../components/ui/button"; 
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchParams, fetchContent, getAllData, updateSearchYear } from "../features/movies/MovieSlice";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
   SelectGroup,
-} from "../components/ui/select"; 
+} from "../components/ui/select";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+
 
 const SearchBar = () => {
   const [searchText, setSearchText] = useState("");
   const [searchType, setSearchType] = useState("All");
 
   const dispatch = useDispatch();
+  const { year } = useSelector(getAllData);
 
   const SearchTypeToParam = () => {
     switch (searchType) {
@@ -31,9 +32,37 @@ const SearchBar = () => {
     }
   };
 
-const handleSearch = () => {
-    dispatch(setSearchParams({ searchText, searchType: SearchTypeToParam() }));
-    dispatch(fetchContent({ searchText, searchType: SearchTypeToParam() }) as any);
+  const handleSearch = () => {
+    dispatch(setSearchParams({
+      searchText,
+      searchType: SearchTypeToParam(),
+      year, 
+    }));
+
+    dispatch(fetchContent({
+      searchText,
+      searchType: SearchTypeToParam(),
+      page: 1, 
+      year,
+    }) as any);
+  };
+
+  const generateYearOptions = () => {
+    let years = [];
+    for (let i = 2024; i >= 1860; i--) {
+      years.push(
+        <SelectItem key={i} value={String(i)}>
+          {i}
+        </SelectItem>
+      );
+    }
+    return years;
+  };
+
+  const handleYearChange = (newYear: string) => {
+    const currentYear = newYear ? parseInt(newYear, 10) : undefined;
+    console.log(currentYear);
+    dispatch(updateSearchYear(currentYear));
 };
 
   return (
@@ -45,9 +74,9 @@ const handleSearch = () => {
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
       />
-      <Select onValueChange={setSearchType}>
+      <Select defaultValue="All" onValueChange={setSearchType}>
         <SelectTrigger className="w-48 bg-zinc-900">{searchType}</SelectTrigger>
-        <SelectContent className="bg-zinc-900 text-white text-lg">
+        <SelectContent className="bg-zinc-900 text-white">
           <SelectGroup>
             <SelectItem value="All">All</SelectItem>
             <SelectItem value="Movie">Movie</SelectItem>
@@ -56,7 +85,15 @@ const handleSearch = () => {
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button onClick={handleSearch} className="bg-sky-950">Submit</Button>
+      <Select defaultValue="" onValueChange={handleYearChange}>
+        <SelectTrigger className="w-48 bg-zinc-900">
+          {year || "Year"}
+        </SelectTrigger>
+        <SelectContent className="bg-zinc-900 text-white">
+          <SelectGroup>{generateYearOptions()}</SelectGroup>
+        </SelectContent>
+      </Select>
+      <Button onClick={handleSearch}>Submit</Button>
     </div>
   );
 };

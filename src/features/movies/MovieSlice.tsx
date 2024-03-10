@@ -17,7 +17,7 @@ interface MovieState {
   searchType: string;
   selectedDetails: SelectedDetailsType;
   currentPage: number;
-  
+  year?: number;
 }
 
 interface ResponsePayload {
@@ -78,14 +78,20 @@ function reject(error: string): any {
 export const fetchContent = createAsyncThunk(
   "movies/fetchContent",
   async (
-    { searchText, searchType , page=1}: { searchText: string; searchType: string; page?: number},
+    {
+      searchText,
+      searchType,
+      page = 1,
+      year,
+    }: { searchText: string; searchType: string; page?: number; year?: number },
     { rejectWithValue }
   ) => {
     try {
       const typeParam =
         searchType && searchType !== "All" ? `&type=${searchType}` : "";
+      const yearParam = year && year ? `&y=${year}` : "";
       const response = await MovieApi.get<ResponsePayload>(
-        `https://www.omdbapi.com/?apiKey=${apiKey}&s=${searchText}${typeParam}&page=${page}`
+        `https://www.omdbapi.com/?apiKey=${apiKey}&s=${searchText}${typeParam}${yearParam}&page=${page}`
       );
       return {
         content: response.data.Search,
@@ -117,14 +123,22 @@ const movieSlice = createSlice({
   reducers: {
     setSearchParams: (
       state,
-      action: PayloadAction<{ searchText: string; searchType: string }>
+      action: PayloadAction<{
+        searchText: string;
+        searchType: string;
+        year?: number;
+      }>
     ) => {
       state.searchText = action.payload.searchText;
       state.searchType = action.payload.searchType;
       state.currentPage = 1;
+      state.year = action.payload.year;
     },
     removeSelectedDetails: (state) => {
       state.selectedDetails = initialState.selectedDetails;
+    },
+    updateSearchYear: (state, action: PayloadAction<number | undefined>) => {
+        state.year = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -141,6 +155,6 @@ const movieSlice = createSlice({
   },
 });
 
-export const { setSearchParams, removeSelectedDetails } = movieSlice.actions;
+export const { setSearchParams, removeSelectedDetails  , updateSearchYear} = movieSlice.actions;
 export const getAllData = (state: { movies: MovieState }) => state.movies;
 export default movieSlice.reducer;
